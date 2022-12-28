@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Member;
 use Illuminate\Support\Facades\Hash;
 use App\Actions\MemberAction;
+use Illuminate\Support\Facades\Validator;
 
 class MemberController extends Controller
 {
@@ -43,7 +44,7 @@ class MemberController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'False',
+                'status' => 'false',
                 'message' => $e->getMessage(),
                 'data' => []
             ], 500);
@@ -73,15 +74,77 @@ class MemberController extends Controller
 
     public function signup(Request $request)
     {
-        $member = new Member();
-        $member->name = $request->name;
-        $member->email = $request->email;
-        $member->password = Hash::make($request->password);
-        $result = $member->save();
-        if ($result) {
-            return "Signup successful.";
-        } else {
-            return "Signup failed.";
+        try {
+            $validated = Validator::make($request->all(), [
+                'name' => 'required | string | max:30',
+                'email' => 'required | string | max:50',
+                'password' => 'required | string | max:30'
+            ]);
+            if ($validated->fails()) {
+                $error = $validated->errors()->all()[0];
+                return response()->json([
+                    'status' => 'false',
+                    'message' => $error,
+                    'data' => []
+                ], 422);
+            } else {
+                $member = new Member();
+                $member->name = $request->name;
+                $member->email = $request->email;
+                $member->password = Hash::make($request->password);
+                $result = $member->save();
+                if ($result) {
+                    return response()->json([
+                        'status' => 'true',
+                        'message' => 'signup successful',
+                        'data' => $member
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'false',
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+    public function updateProfile(Request $request)
+    {
+        try {
+            $validated = Validator::make($request->all(), [
+                'name' => 'required | string | max:30',
+                'email' => 'required | string | max:50',
+                'password' => 'required | string | max:30'
+            ]);
+            if ($validated->fails()) {
+                $error = $validated->errors()->all()[0];
+                return response()->json([
+                    'status' => 'false',
+                    'message' => $error,
+                    'data' => []
+                ], 422);
+            } else {
+                $member = Member::find($request->user()->id);
+                $member->name = $request->name;
+                $member->email = $request->email;
+                $member->password = Hash::make($request->password);
+                $result = $member->update();
+                if ($result) {
+                    return response()->json([
+                        'status' => 'true',
+                        'message' => 'user info updated',
+                        'data' => $member
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'false',
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 500);
         }
     }
 

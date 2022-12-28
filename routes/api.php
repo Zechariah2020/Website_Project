@@ -22,6 +22,7 @@ use App\Http\Controllers\MemberController;
 Route::group(['middleware' => 'auth:sanctum'], function () {
     // All secure URLs
     Route::get("getprofile", [MemberController::class, "getInfoByToken"]);
+    Route::post("updateprofile", [MemberController::class, "updateProfile"]);
 });
 
 
