@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\AddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // All secure URLs
     Route::get("getprofile", [MemberController::class, "getInfoByToken"]);
     Route::post("updateprofile", [MemberController::class, "updateProfile"]);
+    Route::get("addresses", [AddressController::class, "index"]);
+    Route::get("addresses/{id}", [AddressController::class, "show"]);
+    Route::post("addresses", [AddressController::class, "store"]);
+    Route::put("addresses/{id}", [AddressController::class, "update"]);
+    Route::delete("addresses/{id}", [AddressController::class, "destroy"]);
 });
 
 
